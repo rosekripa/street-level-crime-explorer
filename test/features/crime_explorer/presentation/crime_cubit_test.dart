@@ -186,5 +186,67 @@ void main() {
       final cubit = CrimeCubit(repo, now: () => DateTime(2026, 1, 10));
       expect(await cubit.latestMonth(), const YearMonth(2025, 11));
     });
+
+    test('falls back even on an unexpected error', () async {
+      when(() => repo.latestMonth()).thenThrow(StateError('bug'));
+      final cubit = CrimeCubit(repo, now: () => fakeToday);
+      expect(await cubit.latestMonth(), const YearMonth(2026, 9));
+    });
+  });
+
+  group('reset', () {
+    blocTest<CrimeCubit, CrimeState>(
+      'goes back to the start state after results',
+      setUp: () => when(() => repo.getSummary(any(), any()))
+          .thenAnswer((_) async => summary),
+      build: () => CrimeCubit(repo),
+      act: (c) async {
+        await c.search('SW1A 1AA', sept);
+        c.reset();
+      },
+      expect: () => [
+        const CrimeLoading(),
+        const CrimeLoaded(summary),
+        const CrimeInitial(),
+      ],
+    );
+
+    blocTest<CrimeCubit, CrimeState>(
+      'a search still in flight cannot bring results back after reset',
+      setUp: () {
+        final slow = Completer<IncidentSummary>();
+        when(() => repo.getSummary(any(), any()))
+            .thenAnswer((_) => slow.future);
+        Future<void>.delayed(
+          const Duration(milliseconds: 20),
+              () => slow.complete(summary),
+        );
+      },
+      build: () => CrimeCubit(repo),
+      act: (c) async {
+        c.search('SW1A 1AA', sept);
+        c.reset();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      },
+      expect: () => [const CrimeLoading(), const CrimeInitial()],
+    );
+
+    blocTest<CrimeCubit, CrimeState>(
+      'retry does nothing after reset',
+      setUp: () => when(() => repo.getSummary(any(), any()))
+          .thenAnswer((_) async => summary),
+      build: () => CrimeCubit(repo),
+      act: (c) async {
+        await c.search('SW1A 1AA', sept);
+        c.reset();
+        await c.retry();
+      },
+      expect: () => [
+        const CrimeLoading(),
+        const CrimeLoaded(summary),
+        const CrimeInitial(),
+      ],
+      verify: (_) => verify(() => repo.getSummary(any(), any())).called(1),
+    );
   });
 }

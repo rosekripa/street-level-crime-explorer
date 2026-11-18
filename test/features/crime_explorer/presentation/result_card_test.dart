@@ -61,6 +61,28 @@ void main() {
       );
       expect(comparisonText(s), contains('No comparison available'));
     });
+
+    test('higher than the previous month', () {
+      const s = IncidentSummary(
+        location: location,
+        current: MonthlyIncidents(
+            month: '2026-09', countsByCategory: {'burglary': 110}),
+        previous: MonthlyIncidents(
+            month: '2026-08', countsByCategory: {'burglary': 100}),
+      );
+      expect(comparisonText(s), '10.0% higher than August 2026');
+    });
+
+    test('about the same when the change rounds to zero', () {
+      const s = IncidentSummary(
+        location: location,
+        current: MonthlyIncidents(
+            month: '2026-09', countsByCategory: {'burglary': 1000}),
+        previous: MonthlyIncidents(
+            month: '2026-08', countsByCategory: {'burglary': 1000}),
+      );
+      expect(comparisonText(s), 'About the same as August 2026');
+    });
   });
 
   group('ResultsCard', () {

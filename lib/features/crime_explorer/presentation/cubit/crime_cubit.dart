@@ -22,8 +22,8 @@ class CrimeCubit extends Cubit<CrimeState> {
     try {
       final latest = await _repository.latestMonth();
       if (latest != null) return latest;
-    } on Failure {
-      // fall through to the fallback
+    } catch (_){
+      // Any failure, expected or not, falls through to the estimate below.
     }
     final today = _now();
     return YearMonth(today.year, today.month).previous.previous;
