@@ -64,6 +64,15 @@ class CrimeCubit extends Cubit<CrimeState> {
     await search(postcode, month);
   }
 
+  /// Back to the start screen. Also cancels any search still in flight,
+  ///  bumping the counter makes its late answer look stale, so it is ignored.
+  void reset() {
+    _latestRequest++;
+    _lastPostcode = null;
+    _lastMonth = null;
+    emit(const CrimeInitial());
+  }
+
   /// True if a newer search started, or the Cubit was closed.
   bool _isStale(int requestId) => requestId != _latestRequest || isClosed;
 }
