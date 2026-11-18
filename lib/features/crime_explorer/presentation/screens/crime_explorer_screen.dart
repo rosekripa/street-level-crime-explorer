@@ -10,6 +10,8 @@ import 'package:street_level_crime_explorer/core/theme/app_colors.dart';
 import 'package:street_level_crime_explorer/core/theme/app_theme.dart';
 import 'package:street_level_crime_explorer/core/theme/app_typography.dart';
 
+import '../widgets/info_tiles.dart';
+
 class CrimeExplorerScreen extends StatefulWidget {
   const CrimeExplorerScreen({super.key});
 
@@ -114,36 +116,100 @@ class _CrimeExplorerScreenState extends State<CrimeExplorerScreen> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.navy, AppColors.navyLight],
+        //color: AppColors.navy,
+        gradient: RadialGradient(
+          center: Alignment(0.6, -0.3),
+          radius: 1.2,
+          colors: [Color(0xFF134C5B), AppColors.navy],
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 36),
-      child: Center(
+      padding: const EdgeInsets.fromLTRB(0, AppSpacing.md, 0, 80),
+      child: Align(
+        alignment: Alignment.centerLeft,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 680),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'See what has been reported near you',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.tealBright.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.location_on,
+                        color: AppColors.tealBright,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      'Street Watch',
+                      style: AppTypography.heading.copyWith(
+                        color: Colors.white,
+                        fontWeight: AppTypography.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Search a postcode in England, Wales or Northern Ireland to see '
-                    'incidents reported to police within 1 mile.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.85),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'See what has been reported near you',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Search a postcode in England, Wales or Northern Ireland to see '
+                      'incidents reported to police within 1 mile.',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.85),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    _heroChip(Icons.adjust, '1-mile radius'),
+                    _heroChip(Icons.calendar_month_outlined, 'Monthly data'),
+                    _heroChip(Icons.map_outlined, 'England, Wales and NI'),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _heroChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.tealBright),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            label,
+            style: AppTypography.caption.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -225,47 +291,28 @@ class _CrimeExplorerScreenState extends State<CrimeExplorerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.tealBright.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.location_on,
-                color: AppColors.tealBright,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Street Watch',
-              style: AppTypography.subheading.copyWith(fontWeight: AppTypography.bold),
-            ),
-          ],
-        ),
-      ),
       body: SingleChildScrollView(
         child: BlocBuilder<CrimeCubit, CrimeState>(
           builder: (context, state) => Column(
             children: [
               _buildHero(),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 680),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildSearchCard(state),
-                        const SizedBox(height: 24),
-                        _buildBody(context, state),
-                      ],
+              Transform.translate(
+                offset: const Offset(0, -30),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md,),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildSearchCard(state),
+                          const SizedBox(height: AppSpacing.md),
+                          _buildBody(context, state),
+                          const SizedBox(height: AppSpacing.lg),
+                          const InfoTiles(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
