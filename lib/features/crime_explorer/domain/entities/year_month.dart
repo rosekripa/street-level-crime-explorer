@@ -4,7 +4,7 @@ class YearMonth extends Equatable implements Comparable<YearMonth> {
   const YearMonth(this.year, this.month);
 
   final int year;
-  final int month; // 1 to 12
+  final int month;
 
   static const _names = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -24,7 +24,7 @@ class YearMonth extends Equatable implements Comparable<YearMonth> {
   YearMonth get previous =>
       month == 1 ? YearMonth(year - 1, 12) : YearMonth(year, month - 1);
 
-  /// This month first, then going back. Example: 12 months for the picker.
+  /// Latest published month first, then going back one month at a time.
   List<YearMonth> lastMonths(int count) {
     final result = <YearMonth>[];
     var current = this;
@@ -40,6 +40,8 @@ class YearMonth extends Equatable implements Comparable<YearMonth> {
 
   /// "September 2026", for the screen.
   String get label => '${_names[month - 1]} $year';
+  /// "Sep", for the month grid.
+  String get shortLabel => _names[month - 1].substring(0, 3);
 
   @override
   int compareTo(YearMonth other) =>
